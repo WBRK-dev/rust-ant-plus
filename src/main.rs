@@ -1,20 +1,30 @@
-use devices::garmin_stick_3::GarminStick3;
+use std::{thread::sleep, time::Duration};
 
-mod ant;
+use sticks::Driver;
+
+use crate::sticks::garmin_stick_3::GarminStick3;
+
 mod constants;
-mod devices;
+mod events;
+mod sticks;
 mod messages;
 
 fn main() {
-    let stick= GarminStick3::new();
+    let mut stick = GarminStick3::new();
 
-    if !stick.is_present() {
-        println!("Garmin Stick 3 is not present.");
-        return;
-    }
+    println!("Is Garmin Stick 3 present? {}", stick.is_present());
 
-    if !stick.open() {
+    if stick.open() {
+        println!("Garmin Stick 3 opened successfully.");
+    } else {
         println!("Failed to open Garmin Stick 3.");
-        return;
     }
+
+    stick.on("shutdown", |_| {
+        println!("Shutdown event triggered!");
+    });
+
+    sleep(Duration::from_secs(1));
+
+    stick.close();    
 }
